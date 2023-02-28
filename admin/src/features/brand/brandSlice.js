@@ -1,0 +1,44 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import brandService from './brandService'
+
+export const allBrands = createAsyncThunk('brand/all-brands', async (thunkAPI) => {
+    try {
+        return await brandService.allBrands()
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error)
+    }
+})
+
+const initialState = {
+    brands:[],
+    isError: false,
+    isLoading: false,
+    isSuccess: false,
+    message: '',
+}
+
+export const brandSlice = createSlice({
+    name: 'brands',
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(allBrands.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(allBrands.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.isError = false
+                state.isSuccess = true
+                state.brands = action.payload
+            })
+            .addCase(allBrands.rejected, (state, action) => {
+                state.isLoading = false
+                state.isError = true
+                state.isSuccess = false
+                state.message = action.error
+            })
+        }
+})
+
+export default brandSlice.reducer
